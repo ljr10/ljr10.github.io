@@ -26,11 +26,18 @@
 </head>
 <body>
   <h1>광려중학교</h1>
-  <label for="dateInput">원하는 날짜를 입력하세요 (YYYYMMDD):</label>
+  <label for="dateInput">YYYYMMDD:</label>
   <input type="text" id="dateInput" placeholder="YYYYMMDD">
   <button onclick="fetchMeal()">급식 불러오기</button>
   <div id="meal"></div>
   <script>
+    // Add event listener for Enter key press
+    document.getElementById("dateInput").addEventListener("keyup", function(event) {
+      if (event.key === "Enter") {
+        fetchMeal();
+      }
+    });
+
     function fetchMeal() {
       const neisApiUrl = "https://open.neis.go.kr/hub/mealServiceDietInfo"; // NEIS API 엔드포인트 URL
       const apiKey = "c3bfcbc6be3548ea975dde21061bee96"; // NEIS API 키
