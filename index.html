@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급식</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    #meal {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>광려중학교</h1>
+  <div id="meal"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fetchMeal();
+    });
+
+    function fetchMeal() {
+      const neisApiUrl = "https://open.neis.go.kr/hub/mealServiceDietInfo"; // NEIS API 엔드포인트 URL
+      const apiKey = "c3bfcbc6be3548ea975dde21061bee96"; // NEIS API 키
+      
+      // 학교 및 날짜 정보 설정
+      const schoolCode = "9022116"; // 학교 코드
+      const officeCode = "S10"; // 시도교육청 코드
+      const today = new Date();
+      const formattedMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+      const formattedDay = today.getDate().toString().padStart(2, '0');
+      const formattedDate = `${today.getFullYear()}${formattedMonth}${formattedDay}`; // YYYYMMDD 형식으로 날짜 설정
+
+      // NEIS API 요청 URL 구성
+      const apiUrl = `${neisApiUrl}?KEY=${apiKey}&Type=json&pIndex=1&pSize=1&ATPT_OFCDC_SC_CODE=${officeCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${formattedDate}`;
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const mealInfo = data?.mealServiceDietInfo?.[1]?.row?.[0]?.DDISH_NM;
+          if (mealInfo) {
+            const cleanedMealInfo = mealInfo.replace(/<br\/>/g, "\n").replace(/(<([^>]+)>)/gi, "");
+            const mealDiv = document.getElementById("meal");
+            mealDiv.innerText = cleanedMealInfo;
+          } else {
+            throw new Error('No meal data available');
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching or processing meal data:", error);
+          const mealDiv = document.getElementById("meal");
+          mealDiv.innerText = "급식 정보를 불러오는 중 오류가 발생했습니다.";
+        });
+    }
+  </script>
+</body>
+</html>
